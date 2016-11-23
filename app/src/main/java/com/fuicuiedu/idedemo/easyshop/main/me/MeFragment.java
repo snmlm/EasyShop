@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
+import com.fuicuiedu.idedemo.easyshop.main.me.personInfo.PersonActivity;
 import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
 import com.fuicuiedu.idedemo.easyshop.user.login.LoginActivity;
 
@@ -71,7 +72,7 @@ public class MeFragment extends Fragment {
             case R.id.iv_user_head:
             case R.id.tv_login:
             case R.id.tv_person_info:
-//                activityUtils.startActivity(个人信息);
+                activityUtils.startActivity(PersonActivity.class);
                 break;
             case R.id.tv_person_goods:
                 activityUtils.showToast("我的商品 待实现");
