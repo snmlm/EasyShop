@@ -1,6 +1,7 @@
 package com.fuicuiedu.idedemo.easyshop.user.login;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -22,6 +23,7 @@ import com.fuicuiedu.idedemo.easyshop.network.EasyShopClient;
 import com.fuicuiedu.idedemo.easyshop.network.UICallBack;
 import com.fuicuiedu.idedemo.easyshop.user.register.RegisterActivity;
 import com.google.gson.Gson;
+import com.hannesdorfmann.mosby.mvp.MvpActivity;
 
 import java.io.IOException;
 
@@ -30,7 +32,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import okhttp3.Call;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends MvpActivity<LoginView,LoginPresenter> implements LoginView {
 
     @BindView(R.id.et_username)
     EditText et_userName;
@@ -53,6 +55,12 @@ public class LoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         activityUtils = new ActivityUtils(this);
         init();
+    }
+
+    @NonNull
+    @Override
+    public LoginPresenter createPresenter() {
+        return new LoginPresenter();
     }
 
     private void init(){
@@ -99,31 +107,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_login:
-
-                Call call = EasyShopClient.getInstance().login(username,password);
-                call.enqueue(new UICallBack() {
-                    @Override
-                    public void onFailureUI(Call call, IOException e) {
-                        activityUtils.showToast(e.getMessage());
-                    }
-
-                    @Override
-                    public void onResponseUI(Call call, String body) {
-                        UserResult userResult = new Gson().fromJson(body,UserResult.class);
-                        if (userResult.getCode() == 1){
-                            activityUtils.showToast("登录成功");
-                            User user = userResult.getData();
-                            CachePreferences.setUser(user);
-
-                            // TODO: 2016/11/21 0021 页面跳转
-                        }else if (userResult.getCode() == 2){
-                            activityUtils.showToast(userResult.getMessage());
-                        }else{
-                            activityUtils.showToast("未知错误！");
-                        }
-                    }
-                });
-
+                presenter.login(username,password);
                 break;
             case R.id.tv_register:
                 activityUtils.startActivity(RegisterActivity.class);
@@ -132,4 +116,32 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void showPrb() {
+        activityUtils.hideSoftKeyboard();
+        if (dialogFragment == null) dialogFragment = new ProgressDialogFragment();
+        if (dialogFragment.isVisible()) return;
+        dialogFragment.show(getSupportFragmentManager(),"progress_dialog_fragment");
+    }
+
+    @Override
+    public void hidePrb() {
+        dialogFragment.dismiss();
+    }
+
+    @Override
+    public void loginFailed() {
+        et_userName.setText("");
+    }
+
+    @Override
+    public void loginSuccess() {
+        // TODO: 2016/11/23 0023 页面跳转
+        finish();
+    }
+
+    @Override
+    public void showMsg(String msg) {
+        activityUtils.showToast(msg);
+    }
 }
