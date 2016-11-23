@@ -1,4 +1,4 @@
-package com.fuicuiedu.idedemo.easyshop.user;
+package com.fuicuiedu.idedemo.easyshop.user.register;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -147,21 +147,3 @@ public class RegisterActivity extends AppCompatActivity {
         fragment.show(getSupportFragmentManager(), getString(R.string.username_pwd_rule));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

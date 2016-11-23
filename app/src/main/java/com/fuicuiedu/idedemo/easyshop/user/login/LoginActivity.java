@@ -1,4 +1,4 @@
-package com.fuicuiedu.idedemo.easyshop.user;
+package com.fuicuiedu.idedemo.easyshop.user.login;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +20,7 @@ import com.fuicuiedu.idedemo.easyshop.model.User;
 import com.fuicuiedu.idedemo.easyshop.model.UserResult;
 import com.fuicuiedu.idedemo.easyshop.network.EasyShopClient;
 import com.fuicuiedu.idedemo.easyshop.network.UICallBack;
+import com.fuicuiedu.idedemo.easyshop.user.register.RegisterActivity;
 import com.google.gson.Gson;
 
 import java.io.IOException;

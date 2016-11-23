@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
-import com.fuicuiedu.idedemo.easyshop.user.LoginActivity;
+import com.fuicuiedu.idedemo.easyshop.user.login.LoginActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
