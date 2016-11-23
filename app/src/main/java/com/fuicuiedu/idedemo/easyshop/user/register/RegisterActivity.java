@@ -1,6 +1,7 @@
 package com.fuicuiedu.idedemo.easyshop.user.register;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -22,6 +23,7 @@ import com.fuicuiedu.idedemo.easyshop.model.UserResult;
 import com.fuicuiedu.idedemo.easyshop.network.EasyShopClient;
 import com.fuicuiedu.idedemo.easyshop.network.UICallBack;
 import com.google.gson.Gson;
+import com.hannesdorfmann.mosby.mvp.MvpActivity;
 
 
 import java.io.IOException;
@@ -31,7 +33,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import okhttp3.Call;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends MvpActivity<RegisterView,RegisterPresenter> implements RegisterView {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -57,6 +59,12 @@ public class RegisterActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         activityUtils = new ActivityUtils(this);
         init();
+    }
+
+    @NonNull
+    @Override
+    public RegisterPresenter createPresenter() {
+        return new RegisterPresenter();
     }
 
     private void init() {
@@ -109,39 +117,42 @@ public class RegisterActivity extends AppCompatActivity {
             showUserPasswordError(msg);
             return;
         }
+        presenter.register(username,password);
+    }
 
-        Call call = EasyShopClient.getInstance().register(username,password);
+    @Override
+    public void showPrb() {
+        //关闭软键盘
+        activityUtils.hideSoftKeyboard();
+        if (dialogFragment == null) dialogFragment = new ProgressDialogFragment();
+        if (dialogFragment.isVisible()) return;
+        dialogFragment.show(getSupportFragmentManager(),"progress_dialog_fragment");
+    }
 
-        call.enqueue(new UICallBack() {
-            @Override
-            public void onFailureUI(Call call, IOException e) {
-                activityUtils.showToast(e.getMessage());
-            }
+    @Override
+    public void hidePrb() {
+        dialogFragment.dismiss();
+    }
 
-            @Override
-            public void onResponseUI(Call call, String body) {
-                //拿到返回的结果
-                UserResult userResult = new Gson().fromJson(body,UserResult.class);
-                //根据结果码处理不同情况
-                if (userResult.getCode() == 1){
-                    activityUtils.showToast("注册成功！");
-                    //拿到用户的实体类
-                    User user = userResult.getData();
-                    //将用户信息保存到本地配置里
-                    CachePreferences.setUser(user);
+    @Override
+    public void registerFailed() {
+        et_userName.setText("");
+    }
 
-                    // TODO: 2016/11/21 0021 页面跳转实现，使用eventbus
-                    // TODO: 2016/11/21 0021 还需要登录环信，待实现
-                }else if (userResult.getCode() == 2){
-                    activityUtils.showToast(userResult.getMessage());
-                }else{
-                    activityUtils.showToast("未知错误！");
-                }
-            }
-        });
+    @Override
+    public void registerSuccess() {
+        //成功跳转到主页
+        // TODO: 2016/11/23 0023  成功跳转到主页
+        finish();
+    }
+
+    @Override
+    public void showMsg(String msg) {
+        activityUtils.showToast(msg);
     }
 
     //显示错误提示
+    @Override
     public void showUserPasswordError(String msg) {
         AlertDialogFragment fragment = AlertDialogFragment.newInstance(msg);
         fragment.show(getSupportFragmentManager(), getString(R.string.username_pwd_rule));
