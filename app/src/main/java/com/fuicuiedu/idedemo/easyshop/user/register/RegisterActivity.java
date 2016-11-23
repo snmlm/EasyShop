@@ -17,6 +17,7 @@ import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
 import com.fuicuiedu.idedemo.easyshop.commons.RegexUtils;
 import com.fuicuiedu.idedemo.easyshop.components.AlertDialogFragment;
 import com.fuicuiedu.idedemo.easyshop.components.ProgressDialogFragment;
+import com.fuicuiedu.idedemo.easyshop.main.MainActivity;
 import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
 import com.fuicuiedu.idedemo.easyshop.model.User;
 import com.fuicuiedu.idedemo.easyshop.model.UserResult;
@@ -142,7 +143,7 @@ public class RegisterActivity extends MvpActivity<RegisterView,RegisterPresenter
     @Override
     public void registerSuccess() {
         //成功跳转到主页
-        // TODO: 2016/11/23 0023  成功跳转到主页
+        activityUtils.startActivity(MainActivity.class);
         finish();
     }
 

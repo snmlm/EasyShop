@@ -17,6 +17,7 @@ import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
 import com.fuicuiedu.idedemo.easyshop.main.me.MeFragment;
 import com.fuicuiedu.idedemo.easyshop.main.shop.ShopFragment;
+import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
 
 import java.util.List;
 
@@ -64,9 +65,14 @@ public class MainActivity extends AppCompatActivity {
     private void init(){
         //刚进来默认选择市场
         textViews[0].setSelected(true);
-        //TODO 用户是否登录，从而选择不同的适配器
-        viewPager.setAdapter(unLoginAdapter);
-        viewPager.setCurrentItem(0);
+        //判断用户是否登录，从而选择不同的适配器
+        if (CachePreferences.getUser().getName() == null){
+            viewPager.setAdapter(unLoginAdapter);
+            viewPager.setCurrentItem(0);
+        }else{
+            viewPager.setAdapter(loginAdapter);
+            viewPager.setCurrentItem(0);
+        }
 
         //viewpager添加滑动事件
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -117,6 +123,34 @@ public class MainActivity extends AppCompatActivity {
             return 4;
         }
     };
+
+    private FragmentStatePagerAdapter loginAdapter = new
+            FragmentStatePagerAdapter(getSupportFragmentManager()) {
+                @Override
+                public Fragment getItem(int position) {
+                    switch (position){
+                        //市场
+                        case 0:
+                            return new ShopFragment();
+                        //消息
+                        case 1:
+                            // TODO: 2016/11/23 0023 环信消息fragment 
+                            return new UnLoginFragment();
+                        //通讯录
+                        case 2:
+                            // TODO: 2016/11/23 0023 环信的通讯录fragment
+                            return new UnLoginFragment();
+                        //我的
+                        case 3:
+                            return new MeFragment();
+                    }
+                    return null;
+                }
+                @Override
+                public int getCount() {
+                    return 4;
+                }
+            };
 
 
     //textview点击事件

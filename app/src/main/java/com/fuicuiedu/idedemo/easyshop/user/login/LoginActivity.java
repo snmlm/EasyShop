@@ -16,6 +16,7 @@ import android.widget.EditText;
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
 import com.fuicuiedu.idedemo.easyshop.components.ProgressDialogFragment;
+import com.fuicuiedu.idedemo.easyshop.main.MainActivity;
 import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
 import com.fuicuiedu.idedemo.easyshop.model.User;
 import com.fuicuiedu.idedemo.easyshop.model.UserResult;
@@ -115,7 +116,6 @@ public class LoginActivity extends MvpActivity<LoginView,LoginPresenter> impleme
         }
     }
 
-
     @Override
     public void showPrb() {
         activityUtils.hideSoftKeyboard();
@@ -136,7 +136,7 @@ public class LoginActivity extends MvpActivity<LoginView,LoginPresenter> impleme
 
     @Override
     public void loginSuccess() {
-        // TODO: 2016/11/23 0023 页面跳转
+        activityUtils.startActivity(MainActivity.class);
         finish();
     }
 
