@@ -13,4 +13,7 @@ public class EasyShopApi {
 
     //登录接口
     static final String LOGIN = "UserWeb?method=login";
+
+    //更新接口（更新昵称，更新头像）
+    static final String UPDATA = "UserWeb?method=update";
 }

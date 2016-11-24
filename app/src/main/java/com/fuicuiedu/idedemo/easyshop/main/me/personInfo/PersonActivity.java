@@ -97,7 +97,7 @@ public class PersonActivity extends MvpActivity<PersonView, PersonPersenter> imp
                     activityUtils.showToast(getResources().getString(R.string.username_update));
                     break;
                 case 1:
-//                    activityUtils.startActivity("昵称页面");
+                    activityUtils.startActivity(NickNameActivity.class);
                     break;
                 case 2:
                     activityUtils.showToast(getResources().getString(R.string.id_update));
