@@ -26,7 +26,6 @@ import okhttp3.Call;
 
 public class NickNameActivity extends AppCompatActivity {
 
-
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     @BindView(R.id.et_nickname)

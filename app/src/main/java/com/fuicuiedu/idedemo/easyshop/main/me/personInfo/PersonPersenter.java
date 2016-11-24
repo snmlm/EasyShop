@@ -2,6 +2,8 @@ package com.fuicuiedu.idedemo.easyshop.main.me.personInfo;
 
 import com.hannesdorfmann.mosby.mvp.MvpNullObjectBasePresenter;
 
+import java.io.File;
+
 import okhttp3.Call;
 
 /**
@@ -19,7 +21,7 @@ public class PersonPersenter extends MvpNullObjectBasePresenter<PersonView> {
     }
 
     //上传头像
-    public void updataAvatar(){
+    public void updataAvatar(File file){
 
     }
 }
