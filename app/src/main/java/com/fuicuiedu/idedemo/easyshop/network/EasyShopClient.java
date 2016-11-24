@@ -1,16 +1,19 @@
 package com.fuicuiedu.idedemo.easyshop.network;
 
+import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
 import com.fuicuiedu.idedemo.easyshop.model.User;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -110,6 +113,31 @@ public class EasyShopClient {
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("user", gson.toJson(user))
+                .build();
+
+        //构建请求
+        Request request = new Request.Builder()
+                .url(EasyShopApi.BASE_URL + EasyShopApi.UPDATA)
+                .post(requestBody) //ctrl+p查看参数
+                .build();
+
+        return okHttpClient.newCall(request);
+    }
+
+    /**
+     * 更换头像
+     * <p>
+     * post
+     *
+     * @param file 要更新的头像文件
+     */
+    public Call uploadAvatar(File file) {
+        //多部分形式构建请求体
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("user", gson.toJson(CachePreferences.getUser()))
+                .addFormDataPart("image",file.getName(),
+                        RequestBody.create(MediaType.parse("image/png"),file))
                 .build();
 
         //构建请求

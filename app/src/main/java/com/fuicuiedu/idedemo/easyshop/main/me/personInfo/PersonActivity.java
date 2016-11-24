@@ -14,13 +14,16 @@ import android.widget.ListView;
 
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
+import com.fuicuiedu.idedemo.easyshop.components.AvatarLoadOptions;
 import com.fuicuiedu.idedemo.easyshop.components.PicWindow;
 import com.fuicuiedu.idedemo.easyshop.components.ProgressDialogFragment;
 import com.fuicuiedu.idedemo.easyshop.main.MainActivity;
 import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
 import com.fuicuiedu.idedemo.easyshop.model.ItemShow;
 import com.fuicuiedu.idedemo.easyshop.model.User;
+import com.fuicuiedu.idedemo.easyshop.network.EasyShopApi;
 import com.hannesdorfmann.mosby.mvp.MvpActivity;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.hybridsquad.android.library.CropHandler;
 import org.hybridsquad.android.library.CropHelper;
@@ -66,7 +69,6 @@ public class PersonActivity extends MvpActivity<PersonView, PersonPersenter> imp
         listView.setOnItemClickListener(onItemClickListener);
 
         //获取用户头像
-        // TODO: 2016/11/23 0023 未实现，无效
         updataAvatar(CachePreferences.getUser().getHead_Image());
     }
 
@@ -135,7 +137,8 @@ public class PersonActivity extends MvpActivity<PersonView, PersonPersenter> imp
 
     @Override
     public void updataAvatar(String url) {
-        // TODO: 2016/11/23 0023 设置头像
+        ImageLoader.getInstance()
+                .displayImage(EasyShopApi.IMAGE_URL + url,ivUserHead, AvatarLoadOptions.build());
     }
 
     @OnClick({R.id.btn_login_out,R.id.iv_user_head})
@@ -146,6 +149,11 @@ public class PersonActivity extends MvpActivity<PersonView, PersonPersenter> imp
                     //图片选择弹窗的自定义监听
                     picWindow = new PicWindow(this,listener);
                 }
+                if (picWindow.isShowing()){
+                    picWindow.dismiss();
+                    return;
+                }
+                picWindow.show();
                 break;
             case R.id.btn_login_out:
                 // TODO: 2016/11/23 0023 环信的退出登录

@@ -8,6 +8,9 @@ public class EasyShopApi {
     //服务器地址
     static final String BASE_URL = "http://wx.feicuiedu.com:9094/yitao/";
 
+    //图片的根路径
+    public static final String IMAGE_URL = "http://wx.feicuiedu.com:9094/";
+
     //注册接口
     static final String REGISTER = "UserWeb?method=register";
 
