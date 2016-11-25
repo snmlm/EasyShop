@@ -148,4 +148,28 @@ public class EasyShopClient {
 
         return okHttpClient.newCall(request);
     }
+
+    /**
+     * 获取所有商品
+     * <p>
+     * post
+     *
+     * @param pageNo 商品分页 string
+     * @param type 商品类型
+     */
+    public Call getGoods(int pageNo,String type) {
+        //多部分形式构建请求体
+        RequestBody requestBody = new FormBody.Builder()
+                .add("pageNo",String.valueOf(pageNo))
+                .add("type",type)
+                .build();
+
+        //构建请求
+        Request request = new Request.Builder()
+                .url(EasyShopApi.BASE_URL + EasyShopApi.GETGOODS)
+                .post(requestBody) //ctrl+p查看参数
+                .build();
+
+        return okHttpClient.newCall(request);
+    }
 }
