@@ -172,4 +172,59 @@ public class EasyShopClient {
 
         return okHttpClient.newCall(request);
     }
+
+    /**
+     * 获取商品详情
+     *
+     * @param goodsUuid 商品表中的商品主键
+     */
+    public Call getGoodsData(String goodsUuid) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("uuid", goodsUuid)
+                .build();
+        Request request = new Request.Builder()
+                .url(EasyShopApi.BASE_URL + EasyShopApi.DETAIL)
+                .post(requestBody)
+                .build();
+
+        return okHttpClient.newCall(request);
+    }
+
+    /**
+     * 删除商品
+     *
+     * @param goodsUuid 商品表中的商品主键
+     */
+    public Call deleteGoods(String goodsUuid) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("uuid", goodsUuid)
+                .build();
+        Request request = new Request.Builder()
+                .url(EasyShopApi.BASE_URL + EasyShopApi.DELETE)
+                .post(requestBody)
+                .build();
+
+        return okHttpClient.newCall(request);
+    }
+
+    /**
+     * 获取个人商品数据
+     * 还是用获取商品的接口(参数不同)
+     *
+     * @param pageNo 商品分页
+     * @param type   商品类型
+     * @param master 商品发布者
+     */
+    public Call getPersonData(int pageNo, String type, String master) {
+        RequestBody requestBody = new FormBody.Builder()
+                .add("pageNo", String.valueOf(pageNo))
+                .add("type", type)
+                .add("master", master)
+                .build();
+        Request request = new Request.Builder()
+                .url(EasyShopApi.BASE_URL + EasyShopApi.GETGOODS)
+                .post(requestBody)
+                .build();
+        return okHttpClient.newCall(request);
+    }
 }

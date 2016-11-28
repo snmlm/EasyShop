@@ -1,6 +1,7 @@
 package com.fuicuiedu.idedemo.easyshop.main.shop;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
+import com.fuicuiedu.idedemo.easyshop.main.shop.details.GoodsDetailActivity;
 import com.fuicuiedu.idedemo.easyshop.model.GoodsInfo;
 import com.hannesdorfmann.mosby.mvp.MvpFragment;
 
@@ -72,7 +74,9 @@ public class ShopFragment extends MvpFragment<ShopView, ShopPresenter> implement
         shopAdapter.setListener(new ShopAdapter.onItemClickedListener() {
             @Override
             public void onPhotoClicked(GoodsInfo goodsInfo) {
-                // TODO: 2016/11/25 0025 跳转到详情页
+                //跳转到商品详情页，使用详情页的跳转方法
+                Intent intent = GoodsDetailActivity.getStartIntent(getContext(), goodsInfo.getUuid(), 0);
+                startActivity(intent);
             }
         });
         //设置适配器
