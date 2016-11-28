@@ -1,6 +1,8 @@
 package com.fuicuiedu.idedemo.easyshop.network;
 
+import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
+import com.fuicuiedu.idedemo.easyshop.model.GoodsUpLoad;
 import com.fuicuiedu.idedemo.easyshop.model.User;
 import com.google.gson.Gson;
 
@@ -9,6 +11,9 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -136,8 +141,8 @@ public class EasyShopClient {
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("user", gson.toJson(CachePreferences.getUser()))
-                .addFormDataPart("image",file.getName(),
-                        RequestBody.create(MediaType.parse("image/png"),file))
+                .addFormDataPart("image", file.getName(),
+                        RequestBody.create(MediaType.parse("image/png"), file))
                 .build();
 
         //构建请求
@@ -155,13 +160,13 @@ public class EasyShopClient {
      * post
      *
      * @param pageNo 商品分页 string
-     * @param type 商品类型
+     * @param type   商品类型
      */
-    public Call getGoods(int pageNo,String type) {
+    public Call getGoods(int pageNo, String type) {
         //多部分形式构建请求体
         RequestBody requestBody = new FormBody.Builder()
-                .add("pageNo",String.valueOf(pageNo))
-                .add("type",type)
+                .add("pageNo", String.valueOf(pageNo))
+                .add("type", type)
                 .build();
 
         //构建请求
@@ -223,6 +228,31 @@ public class EasyShopClient {
                 .build();
         Request request = new Request.Builder()
                 .url(EasyShopApi.BASE_URL + EasyShopApi.GETGOODS)
+                .post(requestBody)
+                .build();
+        return okHttpClient.newCall(request);
+    }
+
+
+    /**
+     * 商品上传
+     *
+     * @param goodsUpLoad 商品上传时对应的实体类
+     * @param files       商品图片
+     */
+    public Call upload(GoodsUpLoad goodsUpLoad, ArrayList<File> files) {
+        MultipartBody.Builder builder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("good", gson.toJson(goodsUpLoad));
+        //将所有图片文件添加进来
+        for (File file : files) {
+            builder.addFormDataPart("image", file.getName(),
+                    RequestBody.create(MediaType.parse("image/png"), file));
+        }
+        RequestBody requestBody = builder.build();
+
+        Request request = new Request.Builder()
+                .url(EasyShopApi.BASE_URL + EasyShopApi.UPLOADGOODS)
                 .post(requestBody)
                 .build();
         return okHttpClient.newCall(request);
