@@ -66,6 +66,10 @@ public class GoodsUpLoadAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return list.size();
     }
 
+    public ArrayList<ImageItem> getList(){
+        return  list;
+    }
+
     //刷新数据
     public void notifyData(){
         notifyDataSetChanged();

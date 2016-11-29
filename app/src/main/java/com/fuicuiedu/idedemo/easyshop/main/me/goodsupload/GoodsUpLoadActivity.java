@@ -1,18 +1,27 @@
 package com.fuicuiedu.idedemo.easyshop.main.me.goodsupload;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fuicuiedu.idedemo.easyshop.R;
@@ -21,6 +30,8 @@ import com.fuicuiedu.idedemo.easyshop.commons.ImageUtils;
 import com.fuicuiedu.idedemo.easyshop.commons.MyFileUtils;
 import com.fuicuiedu.idedemo.easyshop.components.PicWindow;
 import com.fuicuiedu.idedemo.easyshop.components.ProgressDialogFragment;
+import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
+import com.fuicuiedu.idedemo.easyshop.model.GoodsUpLoad;
 import com.fuicuiedu.idedemo.easyshop.model.ImageItem;
 import com.hannesdorfmann.mosby.mvp.MvpActivity;
 
@@ -28,12 +39,14 @@ import org.hybridsquad.android.library.CropHandler;
 import org.hybridsquad.android.library.CropHelper;
 import org.hybridsquad.android.library.CropParams;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class GoodsUpLoadActivity extends MvpActivity<GoodsUpLoadView,GoodsUpLoadPresenter> implements GoodsUpLoadView{
+public class GoodsUpLoadActivity extends MvpActivity<GoodsUpLoadView, GoodsUpLoadPresenter> implements GoodsUpLoadView {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -92,22 +105,51 @@ public class GoodsUpLoadActivity extends MvpActivity<GoodsUpLoadView,GoodsUpLoad
     }
 
     //picWindow和recyclerView初始化
-    private void initView(){
+    private void initView() {
         //picWindow
-        picWindow = new PicWindow(this,listener);
+        picWindow = new PicWindow(this, listener);
         //recyclerview
-        recyclerView.setLayoutManager(new GridLayoutManager(this,4));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 4));
         //设置默认动画
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         //设置固定大小
         recyclerView.setHasFixedSize(true);
 
-        list = 获取缓存文件夹中文件;
-        adapter = new GoodsUpLoadAdapter(this,list);
+        //获取缓存文件夹中文件
+        list = getFilePhoto();
+        adapter = new GoodsUpLoadAdapter(this, list);
         recyclerView.setAdapter(adapter);
-        adapter.setListener(监听);
-
+        adapter.setListener(itemClickedListener);
     }
+
+    //获取商品名称价格描述信息并监听
+    private void viewContent() {
+        et_goods_name.addTextChangedListener(textWatcher);
+        et_goods_price.addTextChangedListener(textWatcher);
+        et_goods_describe.addTextChangedListener(textWatcher);
+    }
+
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            str_goods_name = et_goods_name.getText().toString();
+            str_goods_price = et_goods_price.getText().toString();
+            str_goods_describe = et_goods_describe.getText().toString();
+            //判断上传按钮是否可点击
+            boolean can_save = !(TextUtils.isEmpty(str_goods_name) || TextUtils.isEmpty(str_goods_price)
+                    || TextUtils.isEmpty(str_goods_describe));
+            btn_goods_load.setEnabled(can_save);
+
+        }
+    };
 
     //图片选择弹窗内的监听事件
     private PicWindow.Listener listener = new PicWindow.Listener() {
@@ -116,7 +158,7 @@ public class GoodsUpLoadActivity extends MvpActivity<GoodsUpLoadView,GoodsUpLoad
             //相册
             CropHelper.clearCachedCropFile(cropHandler.getCropParams().uri);
             Intent intent = CropHelper.buildCropFromGalleryIntent(cropHandler.getCropParams());
-            startActivityForResult(intent,CropHelper.REQUEST_CROP);
+            startActivityForResult(intent, CropHelper.REQUEST_CROP);
         }
 
         @Override
@@ -124,7 +166,7 @@ public class GoodsUpLoadActivity extends MvpActivity<GoodsUpLoadView,GoodsUpLoad
             //相机
             CropHelper.clearCachedCropFile(cropHandler.getCropParams().uri);
             Intent intent = CropHelper.buildCaptureIntent(cropHandler.getCropParams().uri);
-            startActivityForResult(intent,CropHelper.REQUEST_CAMERA);
+            startActivityForResult(intent, CropHelper.REQUEST_CAMERA);
         }
     };
 
@@ -136,12 +178,12 @@ public class GoodsUpLoadActivity extends MvpActivity<GoodsUpLoadView,GoodsUpLoad
             //文件名，就用系统的当前时间，不重复
             String fileName = String.valueOf(System.currentTimeMillis());
             //通过IamgeUtiles工具类，拿到bitmap
-            Bitmap bitmap = ImageUtils.readDownsampledImage(uri.getPath(),1080,1920);
+            Bitmap bitmap = ImageUtils.readDownsampledImage(uri.getPath(), 1080, 1920);
             //将小图保存到SD卡中
-            MyFileUtils.saveBitmap(bitmap,fileName);
+            MyFileUtils.saveBitmap(bitmap, fileName);
             //将item添加到适配器中
             ImageItem take_photo = new ImageItem();
-            take_photo.setImagePath(fileName+".JPEG");
+            take_photo.setImagePath(fileName + ".JPEG");
             take_photo.setBitmap(bitmap);
             adapter.add(take_photo);
             adapter.notifyDataSet();
@@ -169,26 +211,175 @@ public class GoodsUpLoadActivity extends MvpActivity<GoodsUpLoadView,GoodsUpLoad
         }
     };
 
+    //当activtiy拿到返回值
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //crophelper帮助我们去处理结果
+        CropHelper.handleResult(cropHandler, requestCode, resultCode, data);
+    }
 
+    //获取缓存文件夹中的文件
+    private ArrayList<ImageItem> getFilePhoto() {
+        ArrayList<ImageItem> imageItems = new ArrayList<>();
+        //拿到所有图片文件
+        File[] files = new File(MyFileUtils.SD_PATH).listFiles();
+        if (files != null) {
+            for (File file : files) {
+                //解码file拿到bitmap
+                Bitmap bitmap = BitmapFactory.decodeFile(MyFileUtils.SD_PATH + file.getName());
+                ImageItem item = new ImageItem();
+                item.setImagePath(file.getName());
+                item.setBitmap(bitmap);
+                imageItems.add(item);
+            }
+        }
+        return imageItems;
+    }
+
+    //图片点击事件监听
+    private GoodsUpLoadAdapter.OnItemClickedListener itemClickedListener = new GoodsUpLoadAdapter.OnItemClickedListener() {
+        @Override
+        public void onPhotoClicked(ImageItem photo, ImageView imageView) {
+            // TODO: 2016/11/29 0029 跳转到详情页
+        }
+
+        @Override
+        public void onAddClicked() {
+            //展示图片来源选择的pop
+            if (picWindow != null && picWindow.isShowing()) {
+                picWindow.dismiss();
+            } else if (picWindow != null) {
+                picWindow.show();
+            }
+        }
+
+        @Override
+        public void onLongClicked() {
+            //模式改为可删除模式
+            title_mode = MODE_DELETE;
+            //删除的tv可见
+            tv_goods_delete.setVisibility(View.VISIBLE);
+        }
+    };
+
+    //toolbar返回要实现的方法
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) finish();
+        return super.onOptionsItemSelected(item);
+    }
+
+    //重写返回方法，实现点击改变模式
+    @Override
+    public void onBackPressed() {
+        if (title_mode == MODE_DONE) {
+            //删除缓存
+            deleteCache();
+            finish();
+        } else if (title_mode == MODE_DELETE) {
+            changModeActivity();
+        }
+    }
+
+    //删除缓存文件夹中的文件
+    private void deleteCache() {
+        for (int i = 0; i < adapter.getList().size(); i++) {
+            MyFileUtils.delFile(adapter.getList().get(i).getImagePath());
+        }
+    }
+
+    //按返回键改变布局模式
+    private void changModeActivity() {
+        //判断，根据adapter判断当前模式是否是可选删除模式
+        if (adapter.getMode() == GoodsUpLoadAdapter.MODE_MULTI_SELECT) {
+            //删除tv不可见
+            tv_goods_delete.setVisibility(View.GONE);
+            //模式改变
+            title_mode = MODE_DONE;
+            //adapter模式改变
+            adapter.changeMode(GoodsUpLoadAdapter.MODE_NORMAL);
+            for (int i = 0; i < adapter.getList().size(); i++) {
+                adapter.getList().get(i).setIsCheck(false);
+            }
+        }
+    }
+
+    //点击删除，类型选择，点击上传监听
+    @OnClick({R.id.tv_goods_delete, R.id.btn_goods_type, R.id.btn_goods_load})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            //商品类型选择
+            case R.id.btn_goods_type:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("商品类型");
+                builder.setItems(goods_type, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        tv_goods_type.setText(goods_type[which]);
+                        str_goods_type = goods_type_num[which];
+                    }
+                });
+                builder.create().show();
+                break;
+            //点击删除
+            case R.id.tv_goods_delete:
+                ArrayList<ImageItem> del_list = adapter.getList();
+                int num = del_list.size();
+                for (int i = num - 1; i >= 0; i--) {
+                    if (del_list.get(i).isCheck()){
+                        //删除缓存文件夹中文件
+                        MyFileUtils.delFile(del_list.get(i).getImagePath());
+                        del_list.remove(i);
+                    }
+                }
+                this.list = del_list;
+                adapter.notifyData();
+                changModeActivity();
+                title_mode = MODE_DONE;
+                break;
+            //点击上传监听
+            case R.id.btn_goods_load:
+                if (adapter.getSize() == 0){
+                    activityUtils.showToast("最少有一张商品图片！");
+                    return;
+                }
+                presenter.upLoad(setGoodsInfo(),list);
+                break;
+        }
+    }
+
+    //对商品信息初始化
+    private GoodsUpLoad setGoodsInfo(){
+        GoodsUpLoad goodsLoad = new GoodsUpLoad();
+        goodsLoad.setName(str_goods_name);
+        goodsLoad.setPrice(str_goods_price);
+        goodsLoad.setDescribe(str_goods_describe);
+        goodsLoad.setType(str_goods_type);
+        goodsLoad.setMaster(CachePreferences.getUser().getName());
+        return goodsLoad;
+    }
 
 
     @Override
     public void showPrb() {
-
+        if (dialogFragment == null) dialogFragment = new ProgressDialogFragment();
+        if (dialogFragment.isVisible()) return;
+        dialogFragment.show(getSupportFragmentManager(),"fragment_dialog");
     }
 
     @Override
     public void hidePrb() {
-
+        dialogFragment.dismiss();
     }
 
     @Override
     public void upLoadSuccess() {
-
+        finish();
     }
 
     @Override
     public void showMsg(String msg) {
-
+        activityUtils.showToast(msg);
     }
 }
