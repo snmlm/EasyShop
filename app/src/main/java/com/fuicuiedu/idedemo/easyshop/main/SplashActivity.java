@@ -5,6 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 
 
 import com.feicuiedu.apphx.model.HxUserManager;
+import com.feicuiedu.apphx.model.event.HxErrorEvent;
+import com.feicuiedu.apphx.model.event.HxEventType;
+import com.feicuiedu.apphx.model.event.HxSimpleEvent;
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
 import com.fuicuiedu.idedemo.easyshop.commons.CurrentUser;
@@ -13,6 +16,8 @@ import com.fuicuiedu.idedemo.easyshop.model.User;
 import com.hyphenate.easeui.domain.EaseUser;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -63,5 +68,23 @@ public class SplashActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(HxSimpleEvent event) {
+
+        // 判断是否是登录成功事件
+        if (event.type != HxEventType.LOGIN) return;
+        utils.startActivity(MainActivity.class);
+        finish();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(HxErrorEvent event) {
+
+        // 判断是否是登录失败事件
+        if (event.type != HxEventType.LOGIN) return;
+
+        throw new RuntimeException("login error");
     }
 }
