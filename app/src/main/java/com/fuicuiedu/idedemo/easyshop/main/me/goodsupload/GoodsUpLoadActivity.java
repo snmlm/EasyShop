@@ -241,7 +241,12 @@ public class GoodsUpLoadActivity extends MvpActivity<GoodsUpLoadView, GoodsUpLoa
     private GoodsUpLoadAdapter.OnItemClickedListener itemClickedListener = new GoodsUpLoadAdapter.OnItemClickedListener() {
         @Override
         public void onPhotoClicked(ImageItem photo, ImageView imageView) {
-            // TODO: 2016/11/29 0029 跳转到详情页
+            //跳转到详情页
+            Intent intent = new Intent(GoodsUpLoadActivity.this,GoodsUpLoadImageShowActivity.class);
+            intent.putExtra("images", photo.getBitmap());
+            intent.putExtra("width",imageView.getWidth());
+            intent.putExtra("height",imageView.getHeight());
+            startActivity(intent);
         }
 
         @Override

@@ -14,6 +14,8 @@ import android.widget.TextView;
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
 import com.fuicuiedu.idedemo.easyshop.components.AvatarLoadOptions;
+import com.fuicuiedu.idedemo.easyshop.main.me.goodsupload.GoodsUpLoadActivity;
+import com.fuicuiedu.idedemo.easyshop.main.me.persiongoods.PersonGoodsActivity;
 import com.fuicuiedu.idedemo.easyshop.main.me.personInfo.PersonActivity;
 import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
 import com.fuicuiedu.idedemo.easyshop.network.EasyShopApi;
@@ -80,10 +82,10 @@ public class MeFragment extends Fragment {
                 activityUtils.startActivity(PersonActivity.class);
                 break;
             case R.id.tv_person_goods:
-                activityUtils.showToast("我的商品 待实现");
+                activityUtils.startActivity(PersonGoodsActivity.class);
                 break;
             case R.id.tv_goods_upload:
-                activityUtils.showToast("商品上传 待实现");
+                activityUtils.startActivity(GoodsUpLoadActivity.class);
                 break;
         }
     }
