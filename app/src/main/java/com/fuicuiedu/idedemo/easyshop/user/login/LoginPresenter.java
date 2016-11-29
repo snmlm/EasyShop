@@ -1,5 +1,10 @@
 package com.fuicuiedu.idedemo.easyshop.user.login;
 
+import com.feicuiedu.apphx.model.HxUserManager;
+import com.feicuiedu.apphx.model.event.HxErrorEvent;
+import com.feicuiedu.apphx.model.event.HxEventType;
+import com.feicuiedu.apphx.model.event.HxSimpleEvent;
+import com.fuicuiedu.idedemo.easyshop.commons.CurrentUser;
 import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
 import com.fuicuiedu.idedemo.easyshop.model.User;
 import com.fuicuiedu.idedemo.easyshop.model.UserResult;
@@ -7,6 +12,11 @@ import com.fuicuiedu.idedemo.easyshop.network.EasyShopClient;
 import com.fuicuiedu.idedemo.easyshop.network.UICallBack;
 import com.google.gson.Gson;
 import com.hannesdorfmann.mosby.mvp.MvpNullObjectBasePresenter;
+import com.hyphenate.easeui.domain.EaseUser;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 
@@ -19,19 +29,29 @@ import okhttp3.Call;
 public class LoginPresenter extends MvpNullObjectBasePresenter<LoginView> {
 
     private Call call;
+    private String hxPassword;
+
+    @Override
+    public void attachView(LoginView view) {
+        super.attachView(view);
+        EventBus.getDefault().register(this);
+    }
 
     @Override
     public void detachView(boolean retainInstance) {
         super.detachView(retainInstance);
         if (call != null) call.cancel();
+        EventBus.getDefault().unregister(this);
     }
 
     public void login(String username, String password) {
+        hxPassword = password;
         getView().showPrb();
         call = EasyShopClient.getInstance().login(username, password);
         call.enqueue(new UICallBack() {
             @Override
             public void onFailureUI(Call call, IOException e) {
+                hxPassword = null;
                 getView().hidePrb();
                 getView().showMsg(e.getMessage());
             }
@@ -40,13 +60,11 @@ public class LoginPresenter extends MvpNullObjectBasePresenter<LoginView> {
             public void onResponseUI(Call call, String body) {
                 UserResult userResult = new Gson().fromJson(body, UserResult.class);
                 if (userResult.getCode() == 1) {
-                    getView().showMsg("登录成功");
                     User user = userResult.getData();
                     CachePreferences.setUser(user);
 
-                    getView().loginSuccess();
-
-                    // TODO: 2016/11/21 0021 环信未实现
+                    EaseUser easeUser = CurrentUser.convert(user);
+                    HxUserManager.getInstance().asyncLogin(easeUser,hxPassword);
                 } else if (userResult.getCode() == 2) {
                     getView().hidePrb();
                     getView().showMsg(userResult.getMessage());
@@ -57,5 +75,28 @@ public class LoginPresenter extends MvpNullObjectBasePresenter<LoginView> {
                 }
             }
         });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(HxSimpleEvent event){
+        //判断是否是登录成功事件
+        if (event.type != HxEventType.LOGIN) return;
+
+        hxPassword = null;
+        //调用登录成功的方法
+        getView().loginSuccess();
+        getView().showMsg("登录成功");
+
+        EventBus.getDefault().post(new UserResult());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(HxErrorEvent event){
+        //判断是否是登录成功事件
+        if (event.type != HxEventType.LOGIN) return;
+
+        hxPassword = null;
+        getView().hidePrb();
+        getView().showMsg(event.toString());
     }
 }

@@ -14,8 +14,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.feicuiedu.apphx.model.repository.DefaultLocalUsersRepo;
+import com.feicuiedu.apphx.presentation.chat.HxChatActivity;
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
+import com.fuicuiedu.idedemo.easyshop.commons.CurrentUser;
 import com.fuicuiedu.idedemo.easyshop.components.AvatarLoadOptions;
 import com.fuicuiedu.idedemo.easyshop.components.ProgressDialogFragment;
 import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
@@ -159,8 +162,9 @@ public class GoodsDetailActivity extends MvpActivity<GoodsDetailView,GoodsDetail
                     activityUtils.showToast("这个商品是自己发布的哦！");
                     return;
                 }
-                // TODO: 2016/11/27 跳转到发送消息页面，环信实现
-                activityUtils.showToast("发消息，待实现");
+                //跳转到环信的消息页面
+                DefaultLocalUsersRepo.getInstance(this).save(CurrentUser.convert(goods_user));
+                startActivity(HxChatActivity.getStartIntent(GoodsDetailActivity.this,goods_user.getHx_Id()));
                 break;
             case R.id.tv_goods_delete:
                 //弹一个警告，是否删除

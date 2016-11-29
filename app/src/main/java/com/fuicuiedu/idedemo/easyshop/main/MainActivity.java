@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.feicuiedu.apphx.presentation.contact.list.HxContactListFragment;
+import com.feicuiedu.apphx.presentation.conversation.HxConversationListFragment;
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
 import com.fuicuiedu.idedemo.easyshop.main.me.MeFragment;
@@ -134,12 +136,10 @@ public class MainActivity extends AppCompatActivity {
                             return new ShopFragment();
                         //消息
                         case 1:
-                            // TODO: 2016/11/23 0023 环信消息fragment 
-                            return new UnLoginFragment();
+                            return new HxConversationListFragment();
                         //通讯录
                         case 2:
-                            // TODO: 2016/11/23 0023 环信的通讯录fragment
-                            return new UnLoginFragment();
+                            return new HxContactListFragment();
                         //我的
                         case 3:
                             return new MeFragment();

@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 
+import com.feicuiedu.apphx.model.HxUserManager;
 import com.fuicuiedu.idedemo.easyshop.R;
 import com.fuicuiedu.idedemo.easyshop.commons.ActivityUtils;
 import com.fuicuiedu.idedemo.easyshop.components.AvatarLoadOptions;
@@ -23,6 +24,7 @@ import com.fuicuiedu.idedemo.easyshop.model.ItemShow;
 import com.fuicuiedu.idedemo.easyshop.model.User;
 import com.fuicuiedu.idedemo.easyshop.network.EasyShopApi;
 import com.hannesdorfmann.mosby.mvp.MvpActivity;
+import com.hyphenate.easeui.controller.EaseUI;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.hybridsquad.android.library.CropHandler;
@@ -156,7 +158,10 @@ public class PersonActivity extends MvpActivity<PersonView, PersonPersenter> imp
                 picWindow.show();
                 break;
             case R.id.btn_login_out:
-                // TODO: 2016/11/23 0023 环信的退出登录
+                //环信的退出登录
+                HxUserManager.getInstance().asyncLogout();
+                //登出关掉通知栏中的通知
+                EaseUI.getInstance().getNotifier().reset();
                 //清空本地配置
                 CachePreferences.clearAllData();
                 Intent intent = new Intent(this, MainActivity.class);

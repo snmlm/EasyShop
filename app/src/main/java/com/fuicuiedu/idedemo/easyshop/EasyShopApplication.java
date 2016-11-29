@@ -44,7 +44,7 @@ public class EasyShopApplication extends HxBaseApplication{
     protected void initHxModule(HxModuleInitializer initializer) {
         initializer.setLocalInviteRepo(DefaultLocalInviteRepo.getInstance(this))
                 .setLocalUsersRepo(DefaultLocalUsersRepo.getInstance(this))
-                .setRemoteUsersRepo(自定义RemoteUsersRepo)
+                .setRemoteUsersRepo(new RemoteUserRepo())
                 .init();
     }
 }

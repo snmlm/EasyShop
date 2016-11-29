@@ -1,5 +1,10 @@
 package com.fuicuiedu.idedemo.easyshop.user.register;
 
+import com.feicuiedu.apphx.model.HxUserManager;
+import com.feicuiedu.apphx.model.event.HxErrorEvent;
+import com.feicuiedu.apphx.model.event.HxEventType;
+import com.feicuiedu.apphx.model.event.HxSimpleEvent;
+import com.fuicuiedu.idedemo.easyshop.commons.CurrentUser;
 import com.fuicuiedu.idedemo.easyshop.model.CachePreferences;
 import com.fuicuiedu.idedemo.easyshop.model.User;
 import com.fuicuiedu.idedemo.easyshop.model.UserResult;
@@ -7,6 +12,11 @@ import com.fuicuiedu.idedemo.easyshop.network.EasyShopClient;
 import com.fuicuiedu.idedemo.easyshop.network.UICallBack;
 import com.google.gson.Gson;
 import com.hannesdorfmann.mosby.mvp.MvpNullObjectBasePresenter;
+import com.hyphenate.easeui.domain.EaseUser;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 
@@ -19,21 +29,32 @@ import okhttp3.Call;
 public class RegisterPresenter extends MvpNullObjectBasePresenter<RegisterView> {
 
     private Call call;
+    //因为环信需要密码
+    private String hxPassword;
+
+    @Override
+    public void attachView(RegisterView view) {
+        super.attachView(view);
+        EventBus.getDefault().register(this);
+    }
 
     //视图销毁，取消网络请求
     @Override
     public void detachView(boolean retainInstance) {
         super.detachView(retainInstance);
         if (call != null) call.cancel();
+        EventBus.getDefault().unregister(this);
     }
 
     public void register(String username, String password){
+        hxPassword = password;
         //显示加载动画
         getView().showPrb();
         call = EasyShopClient.getInstance().register(username,password);
         call.enqueue(new UICallBack() {
             @Override
             public void onFailureUI(Call call, IOException e) {
+                hxPassword = null;
                 //隐藏动画
                 getView().hidePrb();
                 //显示异常信息
@@ -52,9 +73,9 @@ public class RegisterPresenter extends MvpNullObjectBasePresenter<RegisterView> 
                     User user = userResult.getData();
                     //将用户信息保存到本地配置里
                     CachePreferences.setUser(user);
-                    //调用注册成功的方法
-                    getView().registerSuccess();
-                    // TODO: 2016/11/21 0021 还需要登录环信，待实现
+
+                    EaseUser easeUser = CurrentUser.convert(user);
+                    HxUserManager.getInstance().asyncLogin(easeUser,hxPassword);
                 }else if (userResult.getCode() == 2){
                     //隐藏进度条
                     getView().hidePrb();
@@ -67,5 +88,25 @@ public class RegisterPresenter extends MvpNullObjectBasePresenter<RegisterView> 
                 }
             }
         });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(HxSimpleEvent event){
+        //判断是否是登录成功事件
+        if (event.type != HxEventType.LOGIN) return;
+
+        hxPassword = null;
+        //调用注册成功的方法
+        getView().registerSuccess();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(HxErrorEvent event){
+        //判断是否是登录成功事件
+        if (event.type != HxEventType.LOGIN) return;
+
+        hxPassword = null;
+        getView().hidePrb();
+        getView().showMsg(event.toString());
     }
 }
